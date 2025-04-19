@@ -1,0 +1,15 @@
+/home/abrtx/work/dotnet/test-console/bin/Debug/net8.0/test-console
+/home/abrtx/work/dotnet/test-console/bin/Debug/net8.0/test-console.deps.json
+/home/abrtx/work/dotnet/test-console/bin/Debug/net8.0/test-console.runtimeconfig.json
+/home/abrtx/work/dotnet/test-console/bin/Debug/net8.0/test-console.dll
+/home/abrtx/work/dotnet/test-console/bin/Debug/net8.0/test-console.pdb
+/home/abrtx/work/dotnet/test-console/obj/Debug/net8.0/test-console.GeneratedMSBuildEditorConfig.editorconfig
+/home/abrtx/work/dotnet/test-console/obj/Debug/net8.0/test-console.AssemblyInfoInputs.cache
+/home/abrtx/work/dotnet/test-console/obj/Debug/net8.0/test-console.AssemblyInfo.cs
+/home/abrtx/work/dotnet/test-console/obj/Debug/net8.0/test-console.csproj.CoreCompileInputs.cache
+/home/abrtx/work/dotnet/test-console/obj/Debug/net8.0/test-console.dll
+/home/abrtx/work/dotnet/test-console/obj/Debug/net8.0/refint/test-console.dll
+/home/abrtx/work/dotnet/test-console/obj/Debug/net8.0/test-console.pdb
+/home/abrtx/work/dotnet/test-console/obj/Debug/net8.0/test-console.genruntimeconfig.cache
+/home/abrtx/work/dotnet/test-console/obj/Debug/net8.0/ref/test-console.dll
+/home/abrtx/work/dotnet/test-console/obj/Debug/net8.0/test-console.sourcelink.json

@@ -1,0 +1,153 @@
+#+TITLE: C# Hooks
+#+AUTHOR: abrtx
+#+DATE: Friday, April 18, 2025
+
+* What is LINQ?
+~LINQ~ (Language Integrated Query) is a set of query capabilities in C# that lets
+you work with data (lists, arrays, databases) in a SQL-like way.
+
+* Inline expressions examples LINQ
+** Just print items starting with "A"
+#+begin_src csharp
+
+  names.Where(n => n.StartsWith("A")).ToList()
+     .ForEach(n => Console.WriteLine(n));
+
+#+end_src
+
+** Print the length of names in one line
+#+begin_src csharp
+
+  names.Select(n => n.Length).ToList()
+     .ForEach(len => Console.WriteLine(len));
+
+#+end_src
+
+** Inline sum of lengths
+#+begin_src csharp
+
+  int totalLength = names.Select(n => n.Length).Sum();
+    Console.WriteLine(totalLength);
+
+#+end_src
+
+** Combine Where, Select, and Aggregate
+#+begin_src csharp
+
+  string allNames = names.Where(n => n.Length > 3)
+                           .Select(n => n.ToUpper())
+                           .Aggregate((a, b) => a + ", " + b);
+
+  Console.WriteLine(allNames);  // e.g., ALICE, CHARLIE
+
+#+end_src
+
+** One-liners that return something
+#+begin_src csharp
+
+  var longNames = names.Where(n => n.Length > 4).ToList();
+  var first = names.FirstOrDefault(n => n.StartsWith("B"));
+
+
+#+end_src
+
+** Fluent style: feels like pandas piping
+#+begin_src csharp
+
+  names.Where(n => n.Contains("a"))
+     .Select(n => n.ToUpper())
+     .OrderBy(n => n)
+     .ToList()
+     .ForEach(Console.WriteLine);
+
+#+end_src
+
+
+** Piping (with extension methods)
+#+begin_src csharp
+
+  public static TResult Pipe<T, TResult>(this T input, Func<T, TResult> func) => func(input);
+
+  names.Pipe(x => x.Where(n => n.StartsWith("A")))
+     .Pipe(x => x.Select(n => n.ToUpper()))
+     .ToList()
+     .ForEach(Console.WriteLine);
+
+#+end_src
+
+* Create a DTO
+#+begin_src csharp
+
+  // ProductDTO.cs
+  public record ProductDTO(int Id, string Name, string Category, double Price);
+
+#+end_src
+
+* Want mutability in records?
+#+begin_src csharp
+  public record Car {
+      public string Model { get; init; }
+      public int Year { get; init; }
+  }
+
+#+end_src
+
+* C# LINQ vs pandas / dplyr (vibe check)
+
+|-----------------+------------------------------------+----------------------------------------|
+| Operation       | pandas                             | C# LINQ                                |
+|-----------------+------------------------------------+----------------------------------------|
+| Filter          | df[df["name"].str.startswith("A")] | list.Where(x => x.StartsWith("A"))     |
+| Select/Project  | df["name"].str.upper()             | list.Select(x => x.ToUpper())          |
+| Sort            | df.sort_values(by="age")           | list.OrderBy(x => x.Age)               |
+| GroupBy         | df.groupby("category").mean()      | list.GroupBy(x => x.Category)          |
+| Aggregate       | df["value"].sum()                  | list.Sum(x => x.Value)                 |
+| Combine Strings | ", ".join(df["name"])              | list.Aggregate((a, b) => a + ", " + b) |
+|-----------------+------------------------------------+----------------------------------------|
+
+
+* Using it in a Controller
+#+begin_src csharp
+  [ApiController]
+  [Route("api/products")]
+  public class ProductController : ControllerBase
+  {
+      [HttpGet]
+      public IEnumerable<ProductDTO> GetProducts()
+      {
+          return new List<ProductDTO>
+          {
+              new(1, "Laptop", "Electronics", 1200),
+              new(2, "Desk", "Furniture", 350),
+              new(3, "Phone", "Electronics", 800)
+          };
+      }
+  }
+
+#+end_src
+
+* Customize JSON Names in record DTOs
+#+begin_src csharp
+  using System.Text.Json.Serialization;
+
+  public record ProductDTO(
+      [property: JsonPropertyName("product_id")] int Id,
+      [property: JsonPropertyName("product_name")] string Name,
+      [property: JsonPropertyName("product_category")] string Category,
+      [property: JsonPropertyName("product_price")] double Price
+  );
+
+#+end_src
+
+* Table convertion Python/R to C#
+
+|------------------+---------------------------|
+| Python/R concept | C# concept                |
+|------------------+---------------------------|
+| @dataclass       | record                    |
+| DataFrame row    | DTO record                |
+| pandas filtering | LINQ .Where()             |
+| JSON dicts       | record serialized to JSON |
+|------------------+---------------------------|
+
+
