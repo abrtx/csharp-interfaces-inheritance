@@ -8,6 +8,7 @@ you work with data (lists, arrays, databases) in a SQL-like way.
 
 * Inline expressions examples LINQ
 ** Just print items starting with "A"
+
 #+begin_src csharp
 
   names.Where(n => n.StartsWith("A")).ToList()
@@ -16,6 +17,7 @@ you work with data (lists, arrays, databases) in a SQL-like way.
 #+end_src
 
 ** Print the length of names in one line
+
 #+begin_src csharp
 
   names.Select(n => n.Length).ToList()
@@ -24,6 +26,7 @@ you work with data (lists, arrays, databases) in a SQL-like way.
 #+end_src
 
 ** Inline sum of lengths
+
 #+begin_src csharp
 
   int totalLength = names.Select(n => n.Length).Sum();
@@ -32,6 +35,7 @@ you work with data (lists, arrays, databases) in a SQL-like way.
 #+end_src
 
 ** Combine Where, Select, and Aggregate
+
 #+begin_src csharp
 
   string allNames = names.Where(n => n.Length > 3)
@@ -43,6 +47,7 @@ you work with data (lists, arrays, databases) in a SQL-like way.
 #+end_src
 
 ** One-liners that return something
+
 #+begin_src csharp
 
   var longNames = names.Where(n => n.Length > 4).ToList();
@@ -52,6 +57,7 @@ you work with data (lists, arrays, databases) in a SQL-like way.
 #+end_src
 
 ** Fluent style: feels like pandas piping
+
 #+begin_src csharp
 
   names.Where(n => n.Contains("a"))
@@ -61,7 +67,6 @@ you work with data (lists, arrays, databases) in a SQL-like way.
      .ForEach(Console.WriteLine);
 
 #+end_src
-
 
 ** Piping (with extension methods)
 #+begin_src csharp
@@ -76,6 +81,7 @@ you work with data (lists, arrays, databases) in a SQL-like way.
 #+end_src
 
 * Create a DTO
+
 #+begin_src csharp
 
   // ProductDTO.cs
@@ -84,11 +90,109 @@ you work with data (lists, arrays, databases) in a SQL-like way.
 #+end_src
 
 * Want mutability in records?
+
 #+begin_src csharp
   public record Car {
       public string Model { get; init; }
       public int Year { get; init; }
   }
+
+#+end_src
+
+* The C# Way to "DataFrame"
+
+In pandas/dplyr, we work with rows of named fields. In C#, we can do the same using a class
+or record to model each row. LINQ then becomes our DataFrame engine.
+
+** Define the "Row" (like a DataFrame row)
+
+#+begin_src csharp
+  public record Product(string Name, string Category, double Price);
+#+end_src
+
+** Create a list (like a DataFrame)
+
+#+begin_src csharp
+
+  var products = new List<Product>
+  {
+      new("Laptop", "Electronics", 1200),
+      new("Desk", "Furniture", 300),
+      new("Chair", "Furniture", 150),
+      new("Phone", "Electronics", 800),
+      new("Pen", "Stationery", 2)
+  };
+
+#+end_src
+
+** DataFrame-style Operations with LINQ
+*** Filter (like df[df["Category"] == "Furniture"])
+
+#+begin_src csharp
+
+  var furniture = products.Where(p => p.Category == "Furniture");
+
+#+end_src
+
+*** Select specific columns (like df[[['Name', 'Price']]])
+
+#+begin_src csharp
+
+  var nameAndPrice = products.Select(p => new { p.Name, p.Price });
+
+#+end_src
+
+*** GroupBy + Aggregate (like groupby().mean())
+
+#+begin_src csharp
+
+  var avgPriceByCategory = products
+    .GroupBy(p => p.Category)
+    .Select(g => new {
+        Category = g.Key,
+        AveragePrice = g.Average(p => p.Price)
+    });
+
+#+end_src
+
+*** Sort (like sort_values("Price"))
+
+#+begin_src csharp
+
+  var sortedByPrice = products.OrderBy(p => p.Price);
+
+#+end_src
+
+*** ToDictionary (like df.set_index("Name").to_dict())
+
+#+begin_src csharp
+
+  var priceMap = products.ToDictionary(p => p.Name, p => p.Price);
+
+#+end_src
+
+*** Convert back to List
+
+#+begin_src csharp
+
+  var filteredList = furniture.ToList();
+
+#+end_src
+
+*** Full Example: Average Price of Items > $100
+
+#+begin_src csharp
+
+  products
+    .Where(p => p.Price > 100)
+    .GroupBy(p => p.Category)
+    .Select(g => new {
+        Category = g.Key,
+        Count = g.Count(),
+        AvgPrice = g.Average(p => p.Price)
+    })
+    .ToList()
+    .ForEach(x => Console.WriteLine($"{x.Category}: {x.Count} items, avg ${x.AvgPrice}"));
 
 #+end_src
 
@@ -105,8 +209,8 @@ you work with data (lists, arrays, databases) in a SQL-like way.
 | Combine Strings | ", ".join(df["name"])              | list.Aggregate((a, b) => a + ", " + b) |
 |-----------------+------------------------------------+----------------------------------------|
 
-
 * Using it in a Controller
+
 #+begin_src csharp
   [ApiController]
   [Route("api/products")]
@@ -127,7 +231,9 @@ you work with data (lists, arrays, databases) in a SQL-like way.
 #+end_src
 
 * Customize JSON Names in record DTOs
+
 #+begin_src csharp
+
   using System.Text.Json.Serialization;
 
   public record ProductDTO(
